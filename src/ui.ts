@@ -149,20 +149,41 @@ function convertImage() {
     });
 }
 
+function formatAspectRatio(r) {
+    const getAspect = (r, eps) => {
+	const c = ((e, x, y) => {
+	    const _gcd = (a, b) => (b < e ? a : _gcd(b, a % b));
+	    return _gcd(x, y);
+        })(eps, 1, r);
+	return `${Math.floor(r / c)}:${Math.floor(1 / c)}`;
+    },
+    decString = new Intl.NumberFormat('en-us', {minimumFractionDigits: 2}).format(r),
+    fracString = getAspect(r, 1/50);
+
+    return `${decString} (${fracString})`;
+}
+
 function getSystemInfo(sys : DithertronSettings) {
-    var s = sys.width + " x " + sys.height;
+    var s = sys.width + " × " + sys.height;
     if (sys.reduce) s += ", " + sys.reduce + " out of " + sys.pal.length + " colors";
     else if (sys.pal) s += ", " + sys.pal.length + " colors";
     if (sys.block) {
         s += ", ";
         s += sys.block.colors + " colors per ";
-        s += sys.block.w + "x" + sys.block.h + " block";
+        s += sys.block.w + "×" + sys.block.h + " block";
     }
+    return s;
+}
+
+function getAspectInfo(sys : DithertronSettings) {
+    var s = "Image aspect ratio " + formatAspectRatio((sys.scaleX||1)*sys.width/sys.height);
+    s += ", pixel aspect ratio " + formatAspectRatio(sys.scaleX||1);
     return s;
 }
 
 function showSystemInfo(sys : DithertronSettings) {
     $("#targetFormatInfo").text(getSystemInfo(sys));
+    $("#targetAspectInfo").text(getAspectInfo(sys));
 }
 
 function updatePaletteSwatches(pal:Uint32Array) {
@@ -206,13 +227,18 @@ function setTargetSystem(sys : DithertronSettings) {
     showSystemInfo(sys);
     resize.width = dest.width = sys.width;
     resize.height = dest.height = sys.height;
-    dest.style.transform = 'scaleX('+(sys.scaleX||1)+')';
-    var widthPct = 90 / (sys.scaleX || 1);
-    if (widthPct < 100) {
-        dest.style.width = (90/(sys.scaleX||1))+'%';
+    if (dest.style.aspectRatio !== undefined) {
+        dest.style.aspectRatio = ""+sys.width/sys.height*(sys.scaleX||1);
     } else {
-        dest.style.width = '100%';
+        dest.style.transform = 'scaleX('+(sys.scaleX||1)+')';
+        var widthPct = 90 / (sys.scaleX || 1);
+        if (widthPct < 100) {
+            dest.style.width = (90/(sys.scaleX||1))+'%';
+        } else {
+            dest.style.width = '100%';
+        }
     }
+
     $("#noiseSection").css('display',showNoise?'flex':'none');
     $("#downloadNativeBtn").css('display',sys.toNative?'inline':'none');
     $("#gotoIDE").css('display',getCodeConvertFunction()?'inline':'none');

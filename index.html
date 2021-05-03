@@ -65,6 +65,7 @@ img.crop {
     margin: auto;
     background: #000;
     pointer-events:auto;
+    image-rendering: pixelated;
 }
 </style>
 </head>
@@ -112,6 +113,8 @@ img.crop {
                 <select id="targetFormatSelect" title="Select the target format"></select>
                 <br>
                 <small><span id="targetFormatInfo"></span></small>
+                <br>
+                <small><span id="targetAspectInfo"></span></small>
                 <br>
                 <div>
                     <button id="downloadImageBtn" type="button" class="btn btn-secondary btn-sm" title="Download a PNG image">PNG <i class="fa fa-download"></i></button>
