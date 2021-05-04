@@ -22,10 +22,12 @@ type PixelEditorImageFormat = {
     np?: number
     bpw?: number
     sl?: number
-    pofs?: number
+    pofs?: number	// plane offset
     remap?: number[]
+    bitremap?: number[]
+    yinter?: number	// y interleave
     brev?: boolean
-    flip?: boolean
+    flip?: boolean	// flip vertically
     destfmt?: PixelEditorImageFormat
     xform?: string
     skip?: number
@@ -70,7 +72,10 @@ function convertImagesToWords(images: Uint8Array[], fmt: PixelEditorImageFormat)
         var i = 0;
         for (var y = 0; y < height; y++) {
             var yp = fmt.flip ? height - 1 - y : y;
-            var ofs0 = n * wordsperline * height + yp * wordsperline;
+	    if (fmt.yinter)
+	        var ofs0 = n * wordsperline * height + (yp/fmt.yinter|0) * wordsperline * fmt.yinter + (yp%fmt.yinter);
+	    else
+		var ofs0 = n * wordsperline * height +yp * wordsperline;
             var shift = 0;
             for (var x = 0; x < width; x++) {
                 var color = imgdata[i++];
@@ -81,11 +86,16 @@ function convertImagesToWords(images: Uint8Array[], fmt: PixelEditorImageFormat)
                 }
                 shift += bpp;
                 if (shift >= bitsperword) {
-                    ofs0 += 1;
+                    ofs0 += fmt.yinter||1;
                     shift = 0;
                 }
             }
         }
+	if (fmt.bitremap) {
+	   console.log(`words.length=${words.length}`);
+	    for (var i=0; i<words.length; i++)
+	        words[i] = remapBits(words[i], fmt.bitremap);
+	}
     }
     return words;
 }

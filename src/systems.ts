@@ -163,6 +163,8 @@ const SYSTEMS : DithertronSettings[] = [
         conv:'DitheringCanvas',
         pal:TELETEXT_RGB,
 	reduce:2,
+        toNative:'exportFrameBuffer',
+	exportFormat:{bpp:1,yinter:8,brev:true},
     },
     {
         id:'bbcmicro.mode1',
@@ -173,6 +175,8 @@ const SYSTEMS : DithertronSettings[] = [
         conv:'DitheringCanvas',
         pal:TELETEXT_RGB,
 	reduce:4,
+        toNative:'exportFrameBuffer',
+	exportFormat:{bpp:2,yinter:8,bitremap:[3,7,2,6,1,5,0,4]},
     },
     {
         id:'bbcmicro.mode2',
@@ -182,6 +186,8 @@ const SYSTEMS : DithertronSettings[] = [
         scaleX:2,
         conv:'DitheringCanvas',
         pal:TELETEXT_RGB,
+        toNative:'exportFrameBuffer',
+	exportFormat:{bpp:4,yinter:8,bitremap:[1,3,5,7,0,2,4,6]},
     },
     {
         id:'bbcmicro.mode4',
@@ -192,6 +198,8 @@ const SYSTEMS : DithertronSettings[] = [
         conv:'DitheringCanvas',
         pal:TELETEXT_RGB,
 	reduce:2,
+        toNative:'exportFrameBuffer',
+	exportFormat:{bpp:1,yinter:8,brev:true},
     },
     {
         id:'bbcmicro.mode5',
@@ -202,13 +210,15 @@ const SYSTEMS : DithertronSettings[] = [
         conv:'DitheringCanvas',
         pal:TELETEXT_RGB,
 	reduce:4,
+        toNative:'exportFrameBuffer',
+	exportFormat:{bpp:2,yinter:8,bitremap:[3,7,2,6,1,5,0,4]},
     },
     {
         id:'cpc.mode0',
         name:'Amstrad CPC (mode 0)',
         width:160,
         height:200,
-        scaleX:2,
+        scaleX:15/32, // CHECKME
         conv:'DitheringCanvas',
         pal:AMSTRAD_CPC_RGB,
         reduce:16,
@@ -218,7 +228,7 @@ const SYSTEMS : DithertronSettings[] = [
         name:'Amstrad CPC (mode 1)',
         width:320,
         height:200,
-        scaleX:1,
+        scaleX:15/16, // CHECKME
         conv:'DitheringCanvas',
         pal:AMSTRAD_CPC_RGB,
         reduce:4,
@@ -228,7 +238,7 @@ const SYSTEMS : DithertronSettings[] = [
         name:'Amstrad CPC (mode 2)',
         width:640,
         height:200,
-        scaleX:1/2,
+        scaleX:15/8, // CHECKME
         conv:'DitheringCanvas',
         pal:AMSTRAD_CPC_RGB,
         reduce:2,
