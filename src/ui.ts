@@ -2,6 +2,7 @@
 declare var Cropper;
 declare var pica;
 declare var saveAs;
+declare var sortable;
 
 class ProxyDithertron {
     settings : DithertronSettings;
@@ -25,6 +26,9 @@ class ProxyDithertron {
     }
     setSourceImage(img) {
         worker.postMessage({cmd:"setSourceImage", data:img});
+    }
+    setCustomPalette(pal) {
+        worker.postMessage({cmd:"setCustomPalette", data:pal});
     }
     reset() {
         worker.postMessage({cmd:"reset"});
@@ -133,6 +137,15 @@ function resetImage() {
     }
     dithertron.settings.diffuse = parseFloat(diffuseSlider.value) / 100;
     dithertron.settings.noise = parseFloat(noiseSlider.value);
+    if (!($("#autoPalette")[0] as HTMLInputElement).checked &&
+       dithertron.lastPixels &&
+       dithertron.lastPixels.pal.length == dithertron.settings.reduce) {
+           // TODO: check all the palette entries are valid; we might have changed system? 
+           dithertron.setCustomPalette(dithertron.lastPixels.pal);
+    } else {
+           $('#autoPalette').prop('checked',true);
+           dithertron.setCustomPalette(null);
+    }
     dithertron.setSettings(dithertron.settings);
     dithertron.reset();
 }
@@ -186,16 +199,36 @@ function showSystemInfo(sys : DithertronSettings) {
     $("#targetAspectInfo").text(getAspectInfo(sys));
 }
 
+function reorderPalette(e) {
+    const pal = dithertron.lastPixels.pal,
+          start = e.detail.origin.index,
+          end = e.detail.destination.index,
+	  dir = Math.sign(end-start),
+	  entry = pal[start];
+    if (!dir) return;
+    //console.log(`start=${start} end=${end} dir=${dir} entry=${entry}`);
+    for (var i=start; i!=end; i+=dir) {
+        console.log(i);
+        pal[i] = pal[i+dir];
+    }
+    pal[end] = entry;
+
+    $('#autoPalette').prop('checked',false);
+    resetImage();
+}
+
 function updatePaletteSwatches(pal:Uint32Array) {
     var swat = $("#paletteSwatches");
     swat.empty();
     if (pal && pal.length < 64) {
         pal.forEach((col,index) => {
             var rgb = "rgb(" + (col&0xff) + "," + ((col>>8)&0xff) + "," + ((col>>16)&0xff) + ")";
-            var sq = $('<span style="width:2em">&nbsp;</span>').css("background-color",rgb);
+            var sq = $(`<span class="palentry">${index.toString(16)}</span>`).css("background-color",rgb);
             swat.append(sq);
         });
     }
+    sortable('#paletteSwatches');
+    sortable('#paletteSwatches',dithertron.settings.reduce?'enable':'disable');
 }
 
 var brightSlider = document.getElementById('brightSlider') as HTMLInputElement;
@@ -241,6 +274,7 @@ function setTargetSystem(sys : DithertronSettings) {
 
     $("#noiseSection").css('display',showNoise?'flex':'none');
     $("#downloadNativeBtn").css('display',sys.toNative?'inline':'none');
+    $("#autoPaletteWrapper").css('display',sys.reduce?'inline':'none');
     $("#gotoIDE").css('display',getCodeConvertFunction()?'inline':'none');
     cropper.replace(cropper.url);
 }
@@ -330,6 +364,8 @@ window.addEventListener('load', function() {
     $("#downloadImageBtn").click(downloadImageFormat);
     $("#downloadNativeBtn").click(downloadNativeFormat);
     $("#gotoIDE").click(gotoIDE);
+    $("#autoPalette").on('change', resetImage);
+    $('#paletteSwatches').on('sortupdate',reorderPalette);
 });
 
 // print diags (TODO: generate markdown table)

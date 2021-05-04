@@ -18,7 +18,6 @@ interface DithertronSettings {
     height: number;
     conv: string; //new (...args: any[]) => DitheringCanvas;
     pal: number[] | Uint32Array;
-
     aspect?: number; // aspect ratio for crop rectangle, default 4/3 (TODO)
     scaleX?: number; // aspect ratio for screen pixels
     errfn?: string; //(rgb:number,rgb2:number) => number;
@@ -555,6 +554,7 @@ class Dithertron {
     sysparams : DithertronSettings;
     dithcanv : DitheringCanvas;
     sourceImageData : Uint32Array;
+    customPalette : Uint32Array;
     pixelsAvailable : (msg:PixelsAvailableMessage) => void;
     timer;
 
@@ -566,12 +566,18 @@ class Dithertron {
         this.sourceImageData = imageData;
         this.reset();
     }
+    setCustomPalette(pal : Uint32Array) {
+        this.customPalette = pal;
+        this.reset();
+    }
     iterate() : boolean {
         if (this.dithcanv == null) {
             var sys = this.sysparams;
             var pal = new Uint32Array(sys.pal);
             var errfn = ERROR_FUNCTIONS[sys.errfn] || getRGBAErrorPerceptual;
-            if (sys.reduce) {
+	    if (this.customPalette) {
+	        pal = this.customPalette;
+	    } else if (sys.reduce) {
                 pal = reducePalette(this.sourceImageData, pal, sys.reduce, errfn);
             }
             var convFunction = emglobal[sys.conv];
@@ -640,6 +646,7 @@ onmessage = function(e) {
             case 'reset': return worker_dtron.reset();
             case 'setSettings': return worker_dtron.setSettings(e.data.data);
             case 'setSourceImage': return worker_dtron.setSourceImage(e.data.data);
+            case 'setCustomPalette': return worker_dtron.setCustomPalette(e.data.data);
         }
     }
 }

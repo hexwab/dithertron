@@ -6,6 +6,7 @@
     <script src="node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="node_modules/bootstrap-slider/dist/bootstrap-slider.min.js"></script>
     <script src="node_modules/file-saver/dist/FileSaver.min.js"></script>
+    <script src="node_modules/html5sortable/dist/html5sortable.min.js"></script>
     <!-- css -->
     <link rel="stylesheet" href="node_modules/font-awesome/css/font-awesome.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.min.css" crossorigin="anonymous">
@@ -66,6 +67,14 @@ img.crop {
     background: #000;
     pointer-events:auto;
     image-rendering: pixelated;
+}
+.palentry {
+    width: 2em;
+    text-align: center;
+    font-family: monospace;
+/*    mix-blend-mode: difference; */
+    color: black;
+    user-select: none;
 }
 </style>
 </head>
@@ -134,6 +143,9 @@ img.crop {
             </div>
             <div id="paletteSwatches" class="mt-3 d-flex justify-content-center flex-wrap">
             </div>
+            <div id="autoPaletteWrapper" style="vertical-align: middle">
+	      <input type="checkbox" id="autoPalette" checked></input><label for="autoPalette">Auto palette</label>
+	    </div>
             <div class="alert alert-secondary mt-3">
                 <div class="row align-items-center" id="brightSection">
                     <label for="brightSlider" class="col-sm-3 col-form-label">Bright:</label>
