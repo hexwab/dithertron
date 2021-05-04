@@ -218,7 +218,7 @@ const SYSTEMS : DithertronSettings[] = [
         name:'Amstrad CPC (mode 0)',
         width:160,
         height:200,
-        scaleX:15/32, // CHECKME
+        scaleX:15/8, // CHECKME
         conv:'DitheringCanvas',
         pal:AMSTRAD_CPC_RGB,
         reduce:16,
@@ -238,7 +238,7 @@ const SYSTEMS : DithertronSettings[] = [
         name:'Amstrad CPC (mode 2)',
         width:640,
         height:200,
-        scaleX:15/8, // CHECKME
+        scaleX:15/32, // CHECKME
         conv:'DitheringCanvas',
         pal:AMSTRAD_CPC_RGB,
         reduce:2,
