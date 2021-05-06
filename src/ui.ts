@@ -260,6 +260,16 @@ function loadSourceImage(url,filename) {
     filenameLoaded = filename;
     cropper.replace(url);
 }
+
+function setAspectLock() {
+    const sys = dithertron.settings,
+      oldcrop = cropper.getCropBoxData();
+    if (($('#lockAspect')[0] as HTMLInputElement).checked)
+	cropper.setAspectRatio((sys.scaleX||1)*sys.width/sys.height);
+    else
+        cropper.setAspectRatio(0);
+    cropper.setCropBoxData(oldcrop); // preserve as best we can
+}
 //
 function setTargetSystem(sys : DithertronSettings) {
     var showNoise = sys.conv != 'DitheringCanvas';
@@ -278,7 +288,7 @@ function setTargetSystem(sys : DithertronSettings) {
             dest.style.width = '100%';
         }
     }
-
+    setAspectLock();
     $("#noiseSection").css('display',showNoise?'flex':'none');
     $("#downloadNativeBtn").css('display',sys.toNative?'inline':'none');
     $("#autoPaletteWrapper").css('display',sys.reduce?'inline':'none');
@@ -371,6 +381,7 @@ window.addEventListener('load', function() {
     $("#downloadNativeBtn").click(downloadNativeFormat);
     $("#gotoIDE").click(gotoIDE);
     $("#autoPalette").on('change', resetImage);
+    $("#lockAspect").on('change', setAspectLock);
     $('#paletteSwatches').on('sortupdate',reorderPalette);
 });
 
