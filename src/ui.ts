@@ -151,7 +151,9 @@ function resetImage() {
 }
 
 function convertImage() {
-    pica().resize(cropper.getCroppedCanvas(), resize, {
+    const canvas = cropper.getCroppedCanvas();
+    if (!canvas) return;
+    pica().resize(canvas, resize, {
         /*
         unsharpAmount: 50,
         unsharpRadius: 0.5,
@@ -247,10 +249,15 @@ const cropper = new Cropper(image, {
     viewMode:1,
     initialAspectRatio: 4/3,
     crop(event) {
+        const imageData = cropper.getImageData(),
+              cropData = cropper.getData(true);
+	$('#srcInfo').text(`${filenameLoaded}, ${imageData.naturalWidth} × ${imageData.naturalHeight}, aspect ratio ${formatAspectRatio(imageData.aspectRatio)}`);
+	$('#cropInfo').text(`Cropped to ${cropData.width} × ${cropData.height}, aspect ratio ${formatAspectRatio(cropData.width/cropData.height)}`);
         convertImage();
     },
 });
-function loadSourceImage(url) {
+function loadSourceImage(url,filename) {
+    filenameLoaded = filename;
     cropper.replace(url);
 }
 //
@@ -276,7 +283,7 @@ function setTargetSystem(sys : DithertronSettings) {
     $("#downloadNativeBtn").css('display',sys.toNative?'inline':'none');
     $("#autoPaletteWrapper").css('display',sys.reduce?'inline':'none');
     $("#gotoIDE").css('display',getCodeConvertFunction()?'inline':'none');
-    cropper.replace(cropper.url);
+    convertImage();
 }
 
 var EXAMPLE_IMAGES = [
@@ -301,20 +308,19 @@ window.addEventListener('load', function() {
     document.querySelector('input[type="file"]').addEventListener('change', function() {
         var file = this.files && this.files[0];
         if (file) {
-            filenameLoaded = file.name;
             var url = URL.createObjectURL(file);
-            loadSourceImage(url);
+            loadSourceImage(url,file.name);
         }
     });
 
     EXAMPLE_IMAGES.forEach((filename) => {
-        $('<a class="dropdown-item" href="#"></a>').text(filename).appendTo("#examplesMenu");
-    });
-    $("#examplesMenu").click((e) => {
-        var filename = $(e.target).text();
-        filenameLoaded = filename;
-        loadSourceImage("images/" + filename);
-        imageUpload.value = "";
+    $('#examples').append(
+    $(`<div class="preset" data-dismiss="modal">
+      <img src="images/${filename}"></img>
+      <div class="pname">${filename}</div>`).appendTo('#examplesPopup')
+	.click((e) => ((f) => {
+        loadSourceImage("images/" + f, f);
+	})(filename)));
     });
 
     SYSTEMS.forEach(sys => {
@@ -343,9 +349,9 @@ window.addEventListener('load', function() {
         */
     }
 
+    filenameLoaded = EXAMPLE_IMAGES[Math.random() * EXAMPLE_IMAGES.length|0];
+    loadSourceImage("images/" + filenameLoaded, filenameLoaded);
     setTargetSystem(SYSTEM_LOOKUP['c64.multi']);
-    filenameLoaded = "seurat.jpg";
-    loadSourceImage("images/" + filenameLoaded);
 
     $("#diffuseSlider").on('change', resetImage);
     $("#noiseSlider").on('change', resetImage);

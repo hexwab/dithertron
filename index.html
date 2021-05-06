@@ -76,10 +76,62 @@ img.crop {
     color: black;
     user-select: none;
 }
+.modal-content .close {
+    position: absolute;
+    top: 15px;
+    right: 30px;
+    z-index: 999;
+}
+.preset {
+    display: inline-block;
+    margin: 15px;
+    width: 200px;
+    text-align: center;
+    vertical-align: top;
+}
+.preset img {
+    width: 200px;
+    height: 140px;
+    object-fit: contain;
+}
+.preset:hover {
+    cursor: pointer;
+}
+
+.preset .pname {
+    font-size: 1.2em;
+}
+.file-input {
+    opacity: 0;
+    position: absolute;
+    width: 0;
+}
+.file-label {
+    white-space: nowrap;
+/*  overflow: hidden;
+    position: relative;
+    display: inline;
+    margin: 0; */
+}
+.btn {
+    vertical-align: baseline;
+}
+.small { font-size: 85%; }
 </style>
 </head>
 <!-- body -->
 <body>
+  <div id="examplesPopup" class="modal" role="dialog" style: "max-width: 80%" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+	</button>
+	<div class="modal-body" id="examples">
+	</div>
+      </div>
+    </div>
+  </div>
     <div class="container-xl">
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -108,23 +160,24 @@ img.crop {
     <div class="row">
         <div class="col-md-6">
             <div class="dropdown show alert alert-info">
-                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  Select an example
-                </a> or upload an image.
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" id="examplesMenu">
-                </div>
-                <input type="file" id="imageUpload">
+              <button id="examplesMenu" data-toggle="modal" class="btn btn-secondary btn-sm" data-target="#examplesPopup" title="Pick from a list of example images">Browse examples…</button> or
+	      <label class="btn btn-secondary btn-sm" title="Load an image file">
+		<input class="file-input" type="file" id="imageUpload">
+		<span class="file-label">
+		  <i class="fa fa-upload"></i>
+		  Choose image…
+		</span>
+	      </label>
+	      <div id="srcInfo" class="small"></div>
+	      <div id="cropInfo" class="small"></div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="alert alert-info">
                 Convert to:
                 <select id="targetFormatSelect" title="Select the target format"></select>
-                <br>
-                <small><span id="targetFormatInfo"></span></small>
-                <br>
-                <small><span id="targetAspectInfo"></span></small>
-                <br>
+                <div id="targetFormatInfo" class="small"></div>
+                <div id="targetAspectInfo" class="small"></div>
                 <div>
                     <button id="downloadImageBtn" type="button" class="btn btn-secondary btn-sm" title="Download a PNG image">PNG <i class="fa fa-download"></i></button>
                     <button id="downloadNativeBtn" type="button" class="btn btn-secondary btn-sm" title="Download a binary file in the target format">BIN <i class="fa fa-download"></i></button>
