@@ -1,3 +1,4 @@
+declare var rewrite_pHYs_chunk;
 
 function hex(v: number, nd?: number) {
     if (!nd) nd = 2;
@@ -308,7 +309,19 @@ function downloadNativeFormat() {
 }
 function downloadImageFormat() {
     dest.toBlob((blob) => {
-        saveAs(blob, getFilenamePrefix() + ".png");
+	const reader = new FileReader();
+	reader.addEventListener('loadend', () => {
+	    // reader.result contains the contents of blob as a typed array
+	    const png = new Uint8Array(reader.result as ArrayBuffer),
+	    shift = 55440,
+	    sys = dithertron.settings;
+            const newpng = rewrite_pHYs_chunk(png,
+					      shift,(sys.scaleX||1)*shift,
+					      0);
+            var blob = new Blob([newpng], { type: "image/png" });
+            saveAs(blob, getFilenamePrefix() + ".png");
+	});
+	reader.readAsArrayBuffer(blob);
     }, "image/png");
 }
 function byteArrayToString(data: number[] | Uint8Array): string {
